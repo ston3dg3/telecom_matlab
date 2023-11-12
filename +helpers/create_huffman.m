@@ -50,139 +50,123 @@ table = [prob, combs];
 sortedTable = sortrows(table,1);
 % note: this is required for the generation of the huffman tree
 
-% disp(sortedTable);
+% save all combinations with their probabilities to the struct
 huffman_structure.combs = sortedTable;
 
-% ==================== TREE GENERATION ==============================
+% ======================= Huffman Tree =======================
 
-% huffman coding using array trees.
-% idea: have the main cell array hold matrices of size 2xL where L is the length of the
-% tree at the corresponding position (L+1 is always a power of 2). First row of each matrix is the
-% probability and all other rows represent the new symbol string to send.
-% The trees (matrices) will be dynamically scaled with each iteration of
-% the loop in order to store more nodes. At the end we will have just one matrix with all symbols and
-% their probabilites which allows for easy symbol-probability lookups.
-
-% main cell array cell_arr stores cell arrays that store struct huffNode
 cell_arr = cell(1, size(sortedTable,1));
 
 for i=1:size(sortedTable,1)
-    % create a starter tree with one node (a column vector)
-    huffTree = sortedTable(i,:)';
-    % position 1 of huffNode is probability, the rest are symbols
-    % note: huffTree has length 1+B
-    % insert tree into main cell array
-    cell_arr{i} = huffTree;
+    % create a starter tree with one node
+    huffNode = cell(1,3);
+
+    % first column is the probability of the node
+    huffNode{1} = sortedTable(i,1);
+    % second column holds arrays of symbols
+    symbols = cell(1);
+    symbols{1} = sortedTable(i, 2:end);
+    huffNode{2} = symbols; 
+    % third colums holds corresponding codewords to be determined
+    codewords = cell(1);  
+    huffNode{3} = codewords;
+
+    % insert huffNode into main cell array
+    cell_arr{i} = huffNode;
 end
 
-while(length(cell_arr)>=1)
-    % get 2 nodes with smallest probability
-    S_L = cell_arr{1}; % get left child (type: matrix (tree))
-    S_R = cell_arr{2}; % get right child (type: matrix (tree))
+while(length(cell_arr)>1)
+    % get 2 smallest elements
+    left = cell_arr{1};
+    right = cell_arr{2};
 
     % remove first 2 elements from main cell array
     cell_arr(1:2) = [];
 
-    % create new node with combined probability
-    empty = -1;
-    empty_symbols = empty * ones(1, B);
-    % 1 for pobability, 1 for first element in child tree
-    combined_p = S_L(1,1) + S_R(1,1);
-    S_root = [combined_p empty_symbols]';
+    % caluclate combined probability of the new node
+    l_p = left{1};
+    r_p = right{1};
+    combined_p = l_p + r_p;
 
-    % preallocate an empty matrix of appriopriate size assuming complete binary
-    % tree.
-    length_L = size(S_L, 2);
-    length_R = size(S_R, 2);
-    bigger_length = max(length_L, length_R);
-    new_length = 2*bigger_length+1;
-    new_tree = zeros(1+B, new_length);
-
-    % expaned the tree by adding a root node and putting S_L und S_R at the
-    % right indices (S_L goes to 2*i, S_R goes to 2*i+1) 
-    new_tree(:, 1) = S_root;
-    
-    i = 1;
-    % fill new_tree with slices from S_L 
-    while(i-1 < length_L)
-        % get slice of S_L - size increasing with power of 2
-        fprintf("L | i:%d, 2*i-1:%d\n",i, 2*i-1); % uncomment for debug
-        S_L_slice = S_L(:, i:2*i-1);
-        % determine start and end index for each level of the tree
-        start_index = i*2;
-        end_index = i*2 + (i-1);
-        % add the slice to the tree at the right position
-        new_tree(:, start_index:end_index) = S_L_slice;
-        % index increases exponentially
-        i = i * 2;
+    % get the current codeword and update it with one more bit (0/1)
+    % if the child is on the left, update codeword with 0
+    for i=1:length(left{3})
+        code_vector = left{3}{i};
+        left{3}{i} = [0 code_vector];
+    end
+    % if the child is on the right, update codeword with 1
+    for i=1:length(right{3})
+        code_vector = right{3}{i};
+        right{3}{i} = [1 code_vector];
     end
 
-    % reset index i
-    i = 1;
-    % fill new_tree with slices from S_R
-    while(i-1 < length_R)
-        % get slice of S_R - size of slice increasing with power of 2
-        fprintf("R | i: %d, 2*i-1: %d\n",i, 2*i-1); % uncomment for debug
-        S_R_slice = S_R(:, i:2*i-1);
-        % determine start and end index for each level of the tree
-        start_index = i*2 + (i);
-        end_index = 4*i - 1;
-        % add the slice to the tree at the right position
-        new_tree(:, start_index:end_index) = S_R_slice;
-        % index increases exponentially
-        i = i * 2;
-    end
+    % create new node that combines nodes from left and right child
+    new_symbols = [left{2} right{2}];
+    new_codewords = [left{3} right{3}];
 
-    % if last 2 trees are being combined, no need to check for insert index
-    if(isempty(cell_arr))
-        cell_arr{1} = new_tree;
-        % uncomment for debugging
-        % fprintf("final matrix:\n");
-        % celldisp(cell_arr);
-        break
-    end
-    
+    % prepare new tree with new node for insertion
+    new_tree = cell(1, 3);
+    new_tree{1} = combined_p;
+    new_tree{2} = new_symbols;
+    new_tree{3} = new_codewords;
+
+    % insert new node into cell_arr
     biggest_p = true;
-    % insert sort the newly created tree by considering p of the root of each
-    % tree. Search for the right index of the main cell array
+    % insert sort the newly created tree by considering p of each tree
+    % in cell_arr. Search for the right index to insert.
     for i=1:length(cell_arr)
-        % get tree to compare with new_tree
+        % get node/tree to compare with new_node and then
         current_tree = cell_arr{i};
-        % get probability of the root node
-        p_i = current_tree(1, 1);
+        % get probability of that node/tree
+        p_i = current_tree{1};
         
         % compare probabilities
         if(combined_p <= p_i)
             % the combined p is not the biggest p
             biggest_p = false;
             % insert new tree at this index
-            cell_arr = [cell_arr(1:i-1), new_tree, cell_arr(i:end)];
+            cell_arr = [cell_arr(1:i-1), {new_tree}, cell_arr(i:end)];
             break;
         end
     end
     % if the combined p is biggest yet, add new_tree at the end
     if(biggest_p)
-        cell_arr = [cell_arr(1:end), new_tree];
+        cell_arr = [cell_arr(1:end), {new_tree}];
     end
-
-    % uncomment for debugging
-    % celldisp(cell_arr);
-    % fprintf("==================breaker===============\n");
+    % uncomment for debugging (very nice and useful print)
+    % printHuff(cell_arr);
 end
 
-% extract the resulting matrix from the cell array
-table = cell_arr{1};
-% remove zeros from the matrix so that it's shorter and more readable for
-% debug
-% table(:,any(table==0)) = [];
-% note that probability 0 does not make sense and therefore can be used as
-% an "empty" value in the matrix
+% ============= Convert output to a readable table ===============
 
-% uncomment for debugging
-% disp(table);
+% first column has the symbol in an array, 2nd column has the codeword in bits
+symbol_codes = cell(length(cell_arr),2);
 
-% assign table to the struct
-huffman_structure.tree = table;
-	
+for i=1:length(cell_arr{1}{2})
+    symbols_arr = cell_arr{1}{2}{i};
+    codewords_arr = cell_arr{1}{3}{i};
+
+    symbol_codes{i,1} = symbols_arr;
+    symbol_codes{i,2} = codewords_arr;
 end
+
+% save the lookup table to the huffman struct
+huffman_structure.symbol_codes = symbol_codes;
+
+function printHuff(cell_arr)
+fprintf("\n======================\n");
+for i=1:length(cell_arr)
+    for j=1:length(cell_arr{i}{2})
+        fprintf("s: %s | c: %s\n", mat2str(cell_arr{i}{2}{j}), mat2str(cell_arr{i}{3}{j}));
+    end
+end
+fprintf("======================\n")
+end
+
+% ======================================================================
+
+end
+
+
+
 
