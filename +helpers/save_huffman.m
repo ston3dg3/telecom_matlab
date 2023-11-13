@@ -16,19 +16,19 @@
 % pM = linspace(0,1,80);
 % B = 2;
 
-M = [0 1 2];
-pM = [0.27, 0.46, 0.27];
+M = [0 1 2 3];
+pM = [0.27, 0.46, 0.16 0.11];
 B = 2;
 
-huffStruct = helpers.create_huffman(M, pM, B);
+huffman_structure = helpers.create_huffman(M, pM, B);
 
 % ============= testing ===========================
-% disp(huffStruct.combs);
-% disp(huffStruct.symbol_codes);
+% disp(huffman_structure.combs);
+% disp(huffman_structure.symbol_codes);
 % message = [0 2 1 1 0 2 2 2 2 1 0 2 1 0 2 0 2 1 1 1 0 2 2 0 1 0 1 0 2 1 1 1];
-% cipher = source_encoding.huffman(huffStruct, message);
+% cipher = source_encoding.huffman(huffman_structure, message);
 % disp(cipher);
-% message_decoded = source_decoding.huffman(huffStruct, cipher);
+% message_decoded = source_decoding.huffman(huffman_structure, cipher);
 % disp(message_decoded);
 % =================================================
 
@@ -40,4 +40,4 @@ huffStruct = helpers.create_huffman(M, pM, B);
 filePath = fullfile('..', 'files', 'huffman_dms.mat');
 
 % Save the struct to a .mat file
-save(filePath, "huffStruct");
+save(filePath, "huffman_structure");

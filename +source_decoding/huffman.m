@@ -28,7 +28,7 @@ symbols = table(:,1);
 pointer = 1;
 while pointer < length(input_seq)
     % preallocate buffer
-    buffer = 
+    buffer = [];
 
     for i = pointer : pointer + max_depth
 
@@ -49,7 +49,7 @@ while pointer < length(input_seq)
             % match found
             symbol_index = index;
             symbol = uint8(symbols{index});
-            decoded_symbols = [decoded_symbols ; symbol];
+            decoded_symbols = [decoded_symbols symbol];
             % update pointer
             pointer = pointer + length(buffer);
             break;
