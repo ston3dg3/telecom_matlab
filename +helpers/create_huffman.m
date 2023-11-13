@@ -160,12 +160,14 @@ for i=1:length(cell_arr{1}{2})
     symbol_codes{i,2} = codewords_arr;
 end
 
-% save the lookup table to the huffman struct
-huffman_structure.symbol_codes = symbol_codes;
+% sort and save the lookup table to the huffman struct
+sorted_huffman = sortHuff(symbol_codes);
+huffman_structure.symbol_codes = sorted_huffman;
 
 % add the depth of the binary huffman tree to the struct (useful info)
 huffman_structure.depth = max_depth;
 
+% useful print for the huffman table
 function printHuff(cell_arr)
 fprintf("\n======================\n");
 for i=1:length(cell_arr)
@@ -174,6 +176,15 @@ for i=1:length(cell_arr)
     end
 end
 fprintf("======================\n")
+end
+
+% sort the huffman output for better visualisation
+% also speeds up encoding and decoding as the symbols with highest 
+% probability are checked first
+function sorted_huffTable = sortHuff(symbol_codes)
+   lengths = cellfun(@length, symbol_codes(:,2));
+   [~, sorted_indices] = sort(lengths);
+   sorted_huffTable = symbol_codes(sorted_indices, :);
 end
 
 % ======================================================================
