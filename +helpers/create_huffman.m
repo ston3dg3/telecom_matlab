@@ -141,17 +141,30 @@ end
 
 % first column has the symbol in an array, 2nd column has the codeword in bits
 symbol_codes = cell(length(cell_arr),2);
+max_depth = 0;
 
+% convert the cell_arr structure into a more readable huffman table
 for i=1:length(cell_arr{1}{2})
+    % get symbols and and their corresponding codewords
     symbols_arr = cell_arr{1}{2}{i};
     codewords_arr = cell_arr{1}{3}{i};
+    
+    % keep track of the maximum depth of the binary tree
+    len_codes = length(codewords_arr);
+    if(len_codes > max_depth)
+        max_depth = len_codes;
+    end
 
+    % fill the huffman table with symbols and codewords
     symbol_codes{i,1} = symbols_arr;
     symbol_codes{i,2} = codewords_arr;
 end
 
 % save the lookup table to the huffman struct
 huffman_structure.symbol_codes = symbol_codes;
+
+% add the depth of the binary huffman tree to the struct (useful info)
+huffman_structure.depth = max_depth;
 
 function printHuff(cell_arr)
 fprintf("\n======================\n");
