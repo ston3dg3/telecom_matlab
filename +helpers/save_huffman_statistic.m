@@ -3,8 +3,12 @@
 % for the coding, B=1 is used as each character can be represented
 % with one symbol (symbol is of type uint8)
 
+% choose sample text file to generate huffman tree from:
+% sample_file = 'training_text.txt';
+sample_file = 'dummy_textsource.txt';
+
 % Define the paths to the read and save text files in the 'files' subfolder
-filePath_read = fullfile('..', 'files', 'training_text.txt');
+filePath_read = fullfile('..', 'files', sample_file);
 filePath_save = fullfile('..', 'files', 'huffman_text.mat');
 
 % Define int length (max length of each symbol)
@@ -46,9 +50,7 @@ save(filePath_save, "huffman_structure");
 
 % just for fun, display the most probable ASCII characters
 function most_probable_ASCII(huff_table)
-disp(huff_table);
 int_symbols = cell2mat(huff_table(:,1));
-disp(int_symbols);
 ASCII_symbols = char(int_symbols);
 fprintf("Most common ASCII characters are:\n")
 disp(ASCII_symbols);

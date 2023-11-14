@@ -8,6 +8,9 @@ input_length = length(input_seq);
 B = huffman_structure.B;
 encoded_stream = [];
 
+% start timer
+tic
+
 % make sure the case where "length(input_seq) mod B ~= 0" is handled
 symbols_stream_length = floor(input_length/B);
 num_unreadable_elements = rem(input_length, B);
@@ -22,9 +25,6 @@ message_length = length(input_seq)/B;
 
 % Reshape the array into a matrix with symbols_stream_length rows and B columns
 input_matrix = reshape(input_seq, B, symbols_stream_length)';
-disp(input_matrix);
-
-fprintf("\n======== STARTED ENCODING ==============\n");
 
 % each row is now an array of symbols that need to be translated to binary
 % using huffman coding
@@ -49,7 +49,10 @@ end
 % encoded data will be stored as 8bit unsigned integers (range 0 : 255)
 output = encoded_stream;
 
-fprintf("\n======== FINISHED ENCODING ==============\n");
+elapsed_time = toc;
+fprintf("[Log] Finished encoding\n")
+fprintf('[Log] Elapsed time: %.4f seconds\n', elapsed_time);
+fprintf("======================================\n");
 
 end
 

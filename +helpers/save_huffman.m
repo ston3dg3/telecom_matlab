@@ -16,20 +16,20 @@
 % pM = linspace(0,1,80);
 % B = 2;
 
-M = [0 1 2 3];
-pM = [0.27, 0.46, 0.16 0.11];
+M = [0 1 2];
+pM = [0.27, 0.46, 0.27];
 B = 2;
 
 huffman_structure = helpers.create_huffman(M, pM, B);
 
 % ============= testing ===========================
 % disp(huffman_structure.combs);
-% disp(huffman_structure.symbol_codes);
-% message = [0 2 1 1 0 2 2 2 2 1 0 2 1 0 2 0 2 1 1 1 0 2 2 0 1 0 1 0 2 1 1 1];
-% cipher = source_encoding.huffman(huffman_structure, message);
+disp(huffman_structure.symbol_codes);
+message = [0 2 1 1 0 2 2 2 2 1 0 2 1 0 2 0 2 1 1 1 0 2 2 0 1 0 1 0 2 1 1 1];
+cipher = source_encoding.huffman(huffman_structure, message);
 % disp(cipher);
-% message_decoded = source_decoding.huffman(huffman_structure, cipher);
-% disp(message_decoded);
+message_decoded = source_decoding.huffman(huffman_structure, cipher);
+disp(message_decoded);
 % =================================================
 
 % uncomment below to use the script from anywhere in the project

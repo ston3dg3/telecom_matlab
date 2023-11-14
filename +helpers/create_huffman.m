@@ -54,6 +54,7 @@ sortedTable = sortrows(table,1);
 huffman_structure.combs = sortedTable;
 
 % ======================= Huffman Tree =======================
+tic
 
 cell_arr = cell(1, size(sortedTable,1));
 
@@ -163,6 +164,11 @@ end
 % sort and save the lookup table to the huffman struct
 sorted_huffman = sortHuff(symbol_codes);
 huffman_structure.symbol_codes = sorted_huffman;
+
+elapsed_time = toc;
+fprintf("[Log] Finished building huffman table\n")
+fprintf('[Log] Elapsed time: %.4f seconds\n', elapsed_time);
+fprintf("======================================\n");
 
 % add the depth of the binary huffman tree to the struct (useful info)
 huffman_structure.depth = max_depth;
