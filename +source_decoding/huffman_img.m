@@ -6,15 +6,15 @@ function [output] = huffman_img(huffman_structure, img_width, img_height, encode
 symbol_stream = source_decoding.huffman(huffman_structure, encoded_seq);
 	
 % reshape image to matrix form
-% ERRROR
 image = reshape(symbol_stream, [img_width, img_height])';
 
-fprintf("decoded diff image\n")
-disp(image);
+% fprintf("decoded diff image\n")
+% disp(image);
 
 % get original image from differential image
-output = restoreFromDiff(image, 256);
+restoredImage = restoreFromDiff(image, 256);
 
+output = uint8(reshape(restoredImage, numel(restoredImage), 1))';
 
 
 % ====================== HELPER FUNCTIONS ===================================
