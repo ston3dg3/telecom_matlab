@@ -21,40 +21,69 @@ if length(M) ~= length(pM)
     error('The lengths of M and pM dont match')
 end
 
-% =================== GETTING ALL COMBINATIONS ========================
 
-% Generate all possible messages (combinations of length B of symbols from M);
-cell_arr = cell(1,B);
-for i = 1:B
-    cell_arr{i} = M;
-end
-combs = combinations(cell_arr{:});
-% convert table to matrix
-combs = combs{:,:};
-
-% calculate probability for all messages in combs (all rows)
-% then add the probability as first column of matrix 'table'
-prob=zeros(length(combs),1);
-for i=1:length(combs)
-    % p is the probability of the new symbol of length B
-    p=1;
-    for j=1:B
-        probIndex = M==combs(i,j);
-        p = p * pM(probIndex);
-    end
-    prob(i) = p;
-end
-table = [prob, combs];
-
-% sort messages with respect to (increasing) probability
-sortedTable = sortrows(table,1);
-% note: this is required for the generation of the huffman tree
+tic % start timer
 
 % save all combinations with their probabilities to the struct
+sortedTable = generateAllCombinations(M, pM, B);
 huffman_structure.combs = sortedTable;
 
-% ======================= Huffman Tree =======================
-tic
+% create huffman table from the data
+cell_huff = huffmanTable(sortedTable);
+
+% convert huffman table to readable table
+huffStruct = convertToReadableTable(cell_huff);
+huffman_structure.symbol_codes = huffStruct.symbol_codes;
+huffman_structure.depth = huffStruct.max_depth;
+huffman_structure.min_depth = huffStruct.min_depth;
+
+% build a Trie data structure (for decoding) from the symbol_codes table
+trie = buildTrie(huffStruct.symbol_codes);
+huffman_structure.trie = trie;
+
+elapsed_time = toc;
+fprintf("[Log] Finished building huffman table\n")
+fprintf('[Log] Elapsed time: %.4f seconds\n', elapsed_time);
+fprintf("======================================\n");
+
+
+% =================== GETTING ALL COMBINATIONS ========================
+
+function [sortedTable] = generateAllCombinations(M, pM, B)
+% Generate all possible messages (combinations of length B of symbols from M);
+    cell_arr = cell(1,B);
+    for i = 1:B
+        cell_arr{i} = M;
+    end
+    combs = combinations(cell_arr{:});
+    % convert table to matrix
+    combs = combs{:,:};
+
+    % calculate probability for all messages in combs (all rows)
+    % then add the probability as first column of matrix 'table'
+    prob=zeros(length(combs),1);
+    for i=1:length(combs)
+        % p is the probability of the new symbol of length B
+        p=1;
+        for j=1:B
+            probIndex = M==combs(i,j);
+            p = p * pM(probIndex);
+        end
+        prob(i) = p;
+    end
+    table = [prob, combs];
+
+    % sort messages with respect to (increasing) probability
+    sortedTable = sortrows(table,1);
+    % note: this is required for the generation of the huffman tree
+
+end
+
+
+% ======================= HUFFMAN TABLE =======================
+
+% creates a table with symbols and their codewords
+function cell_arr = huffmanTable(sortedTable)
 
 cell_arr = cell(1, size(sortedTable,1));
 
@@ -134,27 +163,22 @@ while(length(cell_arr)>1)
     if(biggest_p)
         cell_arr = [cell_arr(1:end), {new_tree}];
     end
-    % uncomment for debugging (very nice and useful print)
-    % printHuff(cell_arr);
 end
+end
+
 
 % ============= Convert output to a readable table ===============
 
+% convert the cell_arr into a redable cell array symbol_codes
+function [huffStruct] = convertToReadableTable(cell_arr)
 % first column has the symbol in an array, 2nd column has the codeword in bits
 symbol_codes = cell(length(cell_arr),2);
-max_depth = 0;
 
 % convert the cell_arr structure into a more readable huffman table
 for i=1:length(cell_arr{1}{2})
     % get symbols and and their corresponding codewords
     symbols_arr = cell_arr{1}{2}{i};
     codewords_arr = cell_arr{1}{3}{i};
-    
-    % keep track of the maximum depth of the binary tree
-    len_codes = length(codewords_arr);
-    if(len_codes > max_depth)
-        max_depth = len_codes;
-    end
 
     % fill the huffman table with symbols and codewords
     symbol_codes{i,1} = symbols_arr;
@@ -162,27 +186,73 @@ for i=1:length(cell_arr{1}{2})
 end
 
 % sort and save the lookup table to the huffman struct
-sorted_huffman = sortHuff(symbol_codes);
-huffman_structure.symbol_codes = sorted_huffman;
+symbol_codes = sortHuff(symbol_codes);
 
-elapsed_time = toc;
-fprintf("[Log] Finished building huffman table\n")
-fprintf('[Log] Elapsed time: %.4f seconds\n', elapsed_time);
-fprintf("======================================\n");
+% add the min/max depth of the binary huffman tree to the struct (useful info)
+huffStruct.max_depth = length(symbol_codes{end ,2});
+huffStruct.min_depth = length(symbol_codes{1   ,2});
+huffStruct.symbol_codes = symbol_codes;
 
-% add the depth of the binary huffman tree to the struct (useful info)
-huffman_structure.depth = max_depth;
+end
 
-% useful print for the huffman table
-function printHuff(cell_arr)
-fprintf("\n======================\n");
-for i=1:length(cell_arr)
-    for j=1:length(cell_arr{i}{2})
-        fprintf("s: %s | c: %s\n", mat2str(cell_arr{i}{2}{j}), mat2str(cell_arr{i}{3}{j}));
+
+% ==================== GENERATE TRIE STRUCTURE ==========================
+
+% a trie (prefix tree) is a data structure that works like a binary tree
+% but it ensures that no codeword is a prefix of another codeword.
+function trie = buildTrie(symbol_codes)
+    % get symbols and codewords
+    symbols = symbol_codes(:,1);
+    codewords = symbol_codes(:,2);
+    % Initialize the root of the trie
+    trie = helpers.TrieNode();
+
+    % Populate the trie with codewords and corresponding symbols
+    for i = 1:length(codewords)
+        insertCodeword(trie, codewords{i}, symbols{i});
     end
 end
-fprintf("======================\n")
+
+% inserts new child to the Trie
+function insertCodeword(trie, codeword, symbol)
+    % Insert a codeword and symbol into the trie
+    current_node = trie;
+
+    % Traverse the trie, creating nodes as needed
+    for j = 1:length(codeword)
+        bit = codeword(j) + 1;  % Assuming codeword(j) is 0 or 1
+        if isempty(current_node.children{bit})
+            current_node.children{bit} = helpers.TrieNode();
+        end
+        current_node = current_node.children{bit}; 
+    end
+
+    % Assign the symbol to the leaf node
+    current_node.symbol = symbol;
 end
+
+% useful for printing the Trie for debugging
+function printTrie(node, level)
+    % Print the current level
+    fprintf("======== %d ========\n", level);
+
+    % Print the symbol at the current node, if any
+    if ~isempty(node.symbol)
+        fprintf("Symbol: %s\n", mat2str(node.symbol));
+    end
+
+    % Recursively print the left and right children, if they exist
+    if ~isempty(node.children{1})
+        fprintf("LEFT (level %d):\n", level);
+        printTrie(node.children{1}, level + 1);
+    end
+    if ~isempty(node.children{2})
+        fprintf("RIGHT (level %d):\n", level);
+        printTrie(node.children{2}, level + 1);
+    end
+end
+
+% ======================== HELPER FUNCTIONS =============================
 
 % sort the huffman output for better visualisation
 % also speeds up encoding and decoding as the symbols with highest 

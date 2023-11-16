@@ -16,8 +16,11 @@ symbols_stream_length = floor(input_length/B);
 num_unreadable_elements = rem(input_length, B);
 
 % delete elements which we can't read anyway
+% num_unreadable_elements will be lost
 % after this if, input_seq has length B*symbol_stream_length
 if num_unreadable_elements ~= 0
+    warning("Message not a multiple of B!!! Output size may vary");
+    warndlg("Message not a multiple of B!!! Output size may vary");
     input_seq(end-num_unreadable_elements+1 : end) = [];
 end
 

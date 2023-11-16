@@ -6,15 +6,32 @@ param.source.type = 'image';
 param.source.filename = 'files/lena.pgm';
 param = source.initialize(param); % init source
 
+img = [];
+height = 0;
+width = 0;
+
+% select if parameters from the GUI should be used for image size
+useParams = false;
+if useParams
+    % image is 512 by 512 pixels
+    img = param.source.sequence;
+    width = param.source.image.width;
+    height = param.source.image.height;
+else
+    % custom image for testing
+    img = linspace(0,59,60);
+    width = 10;
+    height = 6;
+end
+
 % reshape image such that it is in matrix form as defined before
-img = reshape(param.source.sequence, [param.source.image.width, param.source.image.height])';
-% image is 512 by 512 pixels
+img = reshape(img, [width, height])';
 
+% get the differential image
+diff_img_mod = calculateDifferentialImg(img, 256);
 
-%A_diff(i+1,j+1) = (A(i+1,j+1) - A(i+1,j));
-
-% slice1 = 
-% slice2 = 
+% get all possible pixel values (M) and their probabilities (pM)
+[M, pM] = huffmanFromData(diff_img_mod, 256);
 
 % create huffman structure. 
 huffman_structure = helpers.create_huffman(M, pM, 1);
@@ -25,8 +42,54 @@ filePath = fullfile('..', 'files', 'huffman_img.mat');
 % Save the struct to a .mat file
 save(filePath, "huffman_structure");
 
+% ======================= TESTING ===================================
 
+serialized_img = reshape(diff_img_mod, 1, numel(diff_img_mod));
 
+encoded = source_encoding.huffman_img(huffman_structure, width, height, serialized_img);
+fprintf("encoded image:\n");
+disp(encoded);
+
+decoded = source_decoding.huffman_img(huffman_structure, width, height, encoded);
+fprintf("decoded image:\n");
+disp(decoded);
+
+fprintf("original diff image:\n");
+disp(diff_img_mod);
+
+fprintf("original image:\n");
+disp(img);
+
+% ====================== FUNCTIONS ===================================
+
+function [M, pM] = huffmanFromData(data, int_len)
+data_len = numel(data);
+vectorized_data = reshape(data, 1, data_len);
+
+% preallocate symbols and probability vectors with the correct size
+M = 0:int_len-1;
+pM = zeros(1, int_len);
+
+% find occurences of all uint8's between 0 and int_len (255)
+for num=0:int_len-1
+    occurrences = sum(vectorized_data == num);
+    % calculate normalised (range 0 to 1) probability
+    p_i = (occurrences/data_len);
+    % add the probability p_i to the probability the vector
+    pM(num+1) = p_i;
+end
+end
+
+function [diff_img_mod] = calculateDifferentialImg(img, int_size)
+% generate differential modulo image
+zero_column = zeros(size(img, 1), 1);
+slice1 = img(: , 1:end-1);
+shifted_slice = [zero_column slice1];
+diff_img = img - shifted_slice;
+diff_img_mod = mod(diff_img, int_size);
+end
+
+% ===================================================================
 
 
 

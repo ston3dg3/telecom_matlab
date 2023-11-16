@@ -9,7 +9,7 @@
 % test 2 (B > 1 test)
 % M = [1, 2, 3];
 % pM = [20, 50, 30];
-% B = 2;
+% B = 3;
 
 % test 3 (large dataset test)
 % M = linspace(1,80,80);
@@ -18,26 +18,29 @@
 
 M = [0 1 2];
 pM = [0.27, 0.46, 0.27];
-B = 2;
+B = 3;
 
 huffman_structure = helpers.create_huffman(M, pM, B);
-
-% ============= testing ===========================
-% disp(huffman_structure.combs);
-disp(huffman_structure.symbol_codes);
-message = [0 2 1 1 0 2 2 2 2 1 0 2 1 0 2 0 2 1 1 1 0 2 2 0 1 0 1 0 2 1 1 1];
-cipher = source_encoding.huffman(huffman_structure, message);
-% disp(cipher);
-message_decoded = source_decoding.huffman(huffman_structure, cipher);
-disp(message_decoded);
-% =================================================
-
-% uncomment below to use the script from anywhere in the project
-% make sure to replace full path with the path of the project
-% scriptPath = fileparts(mfilename('full path'));
 
 % Define the full path to the file in the 'files' subfolder
 filePath = fullfile('..', 'files', 'huffman_dms.mat');
 
 % Save the struct to a .mat file
 save(filePath, "huffman_structure");
+
+
+
+% ============= testing ===========================
+disp(huffman_structure.symbol_codes);
+disp(huffman_structure.combs);
+message = [0 2 1 1 0 2 2 2 2 1 0 2 1 0 2 0 2 1 1 1 0 2 2 0 1 0 1 0 2 1];
+code = source_encoding.huffman(huffman_structure, message);
+fprintf("bit stream (code):\n")
+disp(code);
+fprintf("decoded message:\n");
+message_decoded = source_decoding.huffman(huffman_structure, code);
+fprintf("original message:\n");
+disp(message);
+fprintf("original / decoded message:\n");
+disp([message; message_decoded]);
+% =================================================
