@@ -3,13 +3,16 @@ function [output] = huffman_img(huffman_structure, img_width, img_height, input_
 % to compress the image
 
 % reshape image to matrix form
-image = reshape(input_seq, [img_width, img_height])';
+image = reshape(input_seq', img_height, img_width);
 
 % get differential image
-diff_img_mod = calculateDifferentialImg(image, 256);
+% diff_img_mod = calculateDifferentialImg(image, 256);
+% fprintf("diff image before encoding\n");
+% disp(diff_img_mod);
 
 % convert image back to vector
-diff_img_sequence = reshape(diff_img_mod, 1, numel(diff_img_mod));
+diff_img_sequence = reshape(image, 1, numel(image));
+% fprintf('%s%s\n', "diff img sequence", mat2str(diff_img_sequence));
 
 % encode the differential image sequence
 output = source_encoding.huffman(huffman_structure, diff_img_sequence);

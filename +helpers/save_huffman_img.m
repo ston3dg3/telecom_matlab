@@ -11,7 +11,7 @@ height = 0;
 width = 0;
 
 % select if parameters from the GUI should be used for image size
-useParams = false;
+useParams = true;
 if useParams
     % image is 512 by 512 pixels
     img = param.source.sequence;
@@ -44,27 +44,29 @@ save(filePath, "huffman_structure");
 
 % ======================= TESTING ===================================
 
-serialized_img = reshape(diff_img_mod, 1, numel(diff_img_mod));
+serialized_img = reshape(diff_img_mod', 1, numel(diff_img_mod));
+% fprintf("serialized:\n");
+% disp(serialized_img);
 
 encoded = source_encoding.huffman_img(huffman_structure, width, height, serialized_img);
-fprintf("encoded image:\n");
-disp(encoded);
+% fprintf("encoded image:\n");
+% disp(encoded);
 
 decoded = source_decoding.huffman_img(huffman_structure, width, height, encoded);
-fprintf("decoded image:\n");
-disp(decoded);
+matrix_decoded_img = reshape(decoded, height, width);
+% fprintf("decoded image:\n");
+% disp(matrix_decoded_img);
 
-fprintf("original diff image:\n");
-disp(diff_img_mod);
-
-fprintf("original image:\n");
-disp(img);
+% fprintf("original diff image:\n");
+% disp(diff_img_mod);
+% fprintf("original image:\n");
+% disp(img);
 
 % ====================== FUNCTIONS ===================================
 
 function [M, pM] = huffmanFromData(data, int_len)
 data_len = numel(data);
-vectorized_data = reshape(data, 1, data_len);
+vectorized_data = reshape(data', data_len, 1)';
 
 % preallocate symbols and probability vectors with the correct size
 M = 0:int_len-1;

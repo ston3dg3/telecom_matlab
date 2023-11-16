@@ -55,6 +55,8 @@ function decoded_symbols = trieSolution(huffman_structure, input_seq)
             final_len = final_len + B;
             current_node = trie;  % Reset to the root of the trie
             code_length = 1; % reset code length
+
+            decoded_symbols(final_len+1:end) = [];
         else
             code_length = code_length + 1;
         end
