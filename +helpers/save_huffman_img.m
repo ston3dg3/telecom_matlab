@@ -19,9 +19,10 @@ if useParams
     height = param.source.image.height;
 else
     % custom image for testing
-    img = linspace(0,59,60);
     width = 10;
     height = 6;
+    total_size = width * height;
+    img = uint8(randi([0 255], 1, total_size));
 end
 
 % reshape image such that it is in matrix form as defined before
@@ -44,23 +45,29 @@ save(filePath, "huffman_structure");
 
 % ======================= TESTING ===================================
 
-serialized_img = reshape(diff_img_mod', 1, numel(diff_img_mod));
-% fprintf("serialized:\n");
-% disp(serialized_img);
+% serialized_img = reshape(img', numel(img), 1);
+% encoded = source_encoding.huffman_img(huffman_structure, width, height, serialized_img);
+% decoded = source_decoding.huffman_img(huffman_structure, width, height, encoded);
+% matrix_decoded_img = reshape(decoded', width, height)';
 
-encoded = source_encoding.huffman_img(huffman_structure, width, height, serialized_img);
-% fprintf("encoded image:\n");
-% disp(encoded);
-
-decoded = source_decoding.huffman_img(huffman_structure, width, height, encoded);
-matrix_decoded_img = reshape(decoded, height, width);
-% fprintf("decoded image:\n");
-% disp(matrix_decoded_img);
-
-% fprintf("original diff image:\n");
-% disp(diff_img_mod);
-% fprintf("original image:\n");
-% disp(img);
+if(~useParams)
+    
+    % fprintf("serialized:\n");
+    % disp(serialized_img);
+    % fprintf("encoded image:\n");
+    % disp(encoded);
+    % fprintf("original image:\n");
+    % disp(img);
+    % fprintf("original diff image:\n");
+    % disp(diff_img_mod);
+    % fprintf("decoded image:\n");
+    % disp(matrix_decoded_img);
+    % fprintf("size of decoded image:\n");
+    % disp(size(decoded));
+    % fprintf("size of encoded image:\n");
+    % disp(size(encoded));
+    % fprintf("compression rate: %d\n", length(serialized_img)/length(encoded));
+end
 
 % ====================== FUNCTIONS ===================================
 
@@ -82,13 +89,15 @@ for num=0:int_len-1
 end
 end
 
+% ====================== HELPER FUNCTIONS =============================
+
 function [diff_img_mod] = calculateDifferentialImg(img, int_size)
+% convert image to double for allowing negative values
+img = double(img);
 % generate differential modulo image
 zero_column = zeros(size(img, 1), 1);
 slice1 = img(: , 1:end-1);
-shifted_slice = [zero_column slice1];
-diff_img = img - shifted_slice;
-diff_img_mod = mod(diff_img, int_size);
+diff_img_mod = uint8(mod(img - [zero_column slice1], int_size));
 end
 
 % ===================================================================

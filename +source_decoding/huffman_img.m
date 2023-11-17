@@ -6,7 +6,7 @@ function [output] = huffman_img(huffman_structure, img_width, img_height, encode
 symbol_stream = source_decoding.huffman(huffman_structure, encoded_seq);
 	
 % reshape image to matrix form
-image = reshape(symbol_stream, img_width, img_height)';
+image = reshape(symbol_stream', img_width, img_height)';
 % fprintf('%s%s\n', "decoded diff image:", mat2str(image));
 
 % print decoded differential image before restoring original image
@@ -16,24 +16,31 @@ image = reshape(symbol_stream, img_width, img_height)';
 % get original image from differential image
 restoredImage = restoreFromDiff(image, 256);
 
-output = uint8(restoredImage);
+% convert image matrix to row vector
+vectorized_decoded_img_original = reshape(restoredImage', numel(restoredImage), 1)';
+output = uint8(vectorized_decoded_img_original);
 
 
 % ====================== HELPER FUNCTIONS ===================================
 
 function [recovered_img] = restoreFromDiff(diff_img, int_size)
-% recover original image from differential
+% Reconstruct the original image from the differential image
+diff_img = double(diff_img);
+% Preallocate the original image with the same size as the differential image
+recovered_img = zeros(size(diff_img));
+% The first column of the original image is the same as the differential image
+recovered_img(:,1) = diff_img(:,1);
 
-for col=2:size(diff_img, 2)
-    diff_img(:, col) = diff_img(:, col) + diff_img(:, col-1);
-    diff_img = mod(diff_img, int_size);
+% Compute the original image
+for col_i = 2:size(diff_img, 2)
+    recovered_img(:, col_i) = mod(recovered_img(:, col_i-1) + diff_img(:, col_i), int_size);
 end
-recovered_img = diff_img;
+% convert back to uint8
+recovered_img = uint8(recovered_img);
+end
+% ==========================================================================
 
-% zero_column = zeros(size(diff_img, 1), 1);
-% slice = diff_img(:, 1:end-1);
-% shifted_slice = [zero_column slice];
-% recovered_img = mod((diff_img + shifted_slice), int_size);
-end
+
+% end of main function
 
 end

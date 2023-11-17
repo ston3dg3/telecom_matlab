@@ -8,7 +8,13 @@ function [output] = huffman(huffman_structure,input_seq)
 % start timer
 tic
 % get decoded message
+
+% IMPLEMENTATION 1
 output = trieSolution(huffman_structure, input_seq);
+
+% IMPLEMENTATION 2
+% output = slowDecode(huffman_structure, input_seq);
+
 elapsed_time = toc;
 fprintf("[Log] Finished decoding\n")
 fprintf('[Log] Elapsed time: %.4f seconds\n', elapsed_time);
@@ -83,8 +89,42 @@ end
 
 % =====================================================================
 
+% IMPLEMENTATION 2
+function [decoded_seq] = slowDecode(huffman_structure, encoded_seq)
+    B = huffman_structure.B;
+    symbol_codes = huffman_structure.symbol_codes;
+    
+    decoded_seq = [];
+    idx = 1; % Start index for parsing the encoded sequence
+    
+    while idx <= length(encoded_seq)
+        found = false; % Flag to track if a codeword is found
+        for j = 1:size(symbol_codes, 1)
+            codeword_stored = symbol_codes{j, 2};
+            if length(codeword_stored) <= length(encoded_seq) - idx + 1
+                % Extract codeword of the same length as stored codewords
+                codeword = encoded_seq(idx:idx+length(codeword_stored)-1);
+                if isequal(codeword_stored, codeword)
+                    % Found the corresponding symbol for the codeword
+                    symbol = symbol_codes{j, 1};
+                    decoded_seq = [decoded_seq, symbol];
+                    idx = idx + length(codeword_stored); % Move index
+                    found = true; % Set flag indicating codeword found
+                    break; % Exit inner loop
+                end
+            end
+        end
+        
+        if ~found
+            fprintf('Codeword not found. Aborting decoding.\n');
+            decoded_seq = []; % Return empty sequence in case of failure
+            return;
+        end
+    end
+end
 
-% % IMPLEMENTATION 2 (OLD)
+
+% % IMPLEMENTATION 3 (OLD)
 % function [decoded_symbols] = alwaysSearchForBuffer(table, input_seq, B, max_depth, min_depth)
 % codewords = table(:,2);
 % symbols = table(:,1);
