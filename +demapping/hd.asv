@@ -8,28 +8,29 @@ M = length(seq_in);
 m = size(label,2);
 
 % seq_in has symbols in it
-seq_out = zeros(M,m);
+seq_out = zeros(1,M*m);
 
 for i=1:M
     % get current symbol
     symbol = seq_in(i);
 
     % Calculate the absolute differences between X and symbol
-    % this works also for complex numbers
     differences = abs(X - symbol);
 
     % get the index of the symbol in X closest to 'symbol'
-    [~ , closest_symbol_index] = min(differences);
+    closest_symbol_index = differences == min(differences);
 
     % get corresponding codeword
     codeword = label(closest_symbol_index, :);
 
+    disp(codeword);
+
     % add codeword to seq_out
-    seq_out(i, :) = codeword;
+    seq_out(i:i+m-1) = codeword;
 end
 
-% convert output to uint8 vector (from matrix form)
-seq_out = uint8(reshape(seq_out', M*m, 1)');
+
+
 
 end
 

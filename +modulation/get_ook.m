@@ -12,5 +12,10 @@ function [X,label] = get_ook()
 X = zeros(1,2);
 label = zeros(2,1);
 
+X = [-1 1];
+
+label(1,:) = 0;
+label(2,:) = 1;
+
 end
 

@@ -24,17 +24,17 @@ num_of_symbols = n/m;
 seq_out = zeros(1, num_of_symbols);
 
 
-column_sequence = reshape(seq_in, m, num_of_symbols)';
+column_sequence = reshape(seq_in, )
 
-for i=1:num_of_symbols
+for i=1:m:n
     % define next bits to read
-    read_buffer = column_sequence(i,:);
+    read_buffer = seq_in(i:i+m-1);
 
     % find the index where the read codeword in bit matches code of the constellation symbol
     [rowIndex, ~] = find(ismember(label, read_buffer, 'rows'));
 
     % assign codeword at found index of seq_out array
-    seq_out(i) = X(rowIndex);
+    seq_out(rowIndex) = X(rowIndex);
 end
 
 end
