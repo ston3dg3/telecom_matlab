@@ -30,7 +30,7 @@ end
 
 % get average power of the constellation symbols
 function E = avgPower(X)
-    E = sum(abs(X).^2);
+    E = mean(abs(X).^2);
 end
 
 % Generate the vector of points
