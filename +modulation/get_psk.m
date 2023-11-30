@@ -28,7 +28,7 @@ X = Radius * exp(1j * symbolAngles);
 % plot_complex(X);
 
 % make sure average power is 1
-fprintf("average Power: %d\n", avgPower(X));
+% fprintf("average Power: %d\n", avgPower(X));
 
 end
 

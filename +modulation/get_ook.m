@@ -15,7 +15,7 @@ X = [0 getDistance(1)];
 label(1,:) = 0;
 label(2,:) = 1;
 
-fprintf("avg Power: %d\n", avgPower(X));
+% fprintf("avg Power: %d\n", avgPower(X));
 
 end
 

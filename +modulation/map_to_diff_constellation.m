@@ -27,6 +27,10 @@ seq_out = zeros(1,n/m);
 % reshape seq_in into a column vector for easier reading
 column_sequence = reshape(seq_in, m, num_of_symbols)';
 
+fprintf("col seq:\n");
+disp(column_sequence);
+fprintf("==========")
+
 % send the symbol at phase = 0 because at the start, phase is 0
 buffer_symbol = X(1);
 

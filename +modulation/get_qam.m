@@ -107,10 +107,6 @@ end
 
 cutoutSide = sqrt(cutoutSquare);
 side = longSide - 2*cutoutSide;
-
-disp(side);
-disp(longSide);
-disp(cutoutSide);
 % longSide is size of the square that embraces the QAM constellation
 
 % preallocate X
@@ -143,7 +139,6 @@ for i=1:longSide
         corner4 = (i>cutoutSide+side && j>cutoutSide+side);
 
         if ~(corner1 || corner2 || corner3 || corner4)
-            fprintf("Current Position: [%d %d]\n", i, j);
             X = [X complex_matrix(i,j)];
         end
     end

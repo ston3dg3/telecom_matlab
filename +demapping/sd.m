@@ -12,10 +12,9 @@ for i=1:M
     % get current symbol
     symbol = seq_in(i);
 
-   
-    P_yi_x0 = ;
-    P_yi_x1 = ;
-    L_i = (1/N0) * (norm(symbol - X(1))).^2
+    % calculate probabilities (not implemented)
+    P_yi_x0 = 1;
+    P_yi_x1 = 1;
 
     % Calculate the absolute log likelihood ratio
     L_i = sum(log(P_yi_x0 / P_yi_x1));
