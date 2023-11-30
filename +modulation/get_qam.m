@@ -12,40 +12,21 @@ function [X,label] = get_qam(M)
 %   label:  Matrix of size Mxm containing the binary labels of the M QAM
 %           symbols where m=log2(M)
 
-% since M is not always a perfect square, we need to look for a matrix 
-% size that will have optimal (closest to square) sides
-[width, height] = getOptimalConstellationSize(M);
-
 % get m and gray label
 m = log2(M);
-label = modulation.get_gray_label(m);
+label = arrangeGrayCodes2D(modulation.get_gray_label(m));
+% get M-QUAM constellation
+X = computeSymbolPositions(M);
 
-% set a random distance between neighbours
-d = 1;
-
-% set the boundries for the matrix and create it
-% x = linspace(-width, width, width);
-% y = linspace(height, -height, side);
-x = -width/2:d:width/2;
-y = height/2:d:-height/2;
-
-[re, im] = meshgrid(0:width-1, 0:height-1);
-% add real and imaginary part to the matrix
-complex_matrix = re + im*1i;
-
-% shift the matrix to the correct position
-complex_matrix = complex_matrix - ((width-1)/2 + (height-1)*1i/2);
-
-% test printing 
-disp(complex_matrix);
-
-X = reshape(complex_matrix', M, 1)';
-plotComplex(X);
-
+% ================== TESTING =====================================
+% plot the constellation for testing
+% plotComplex(X, getStringBitLabels(label), true);
 % check average Power
-fprintf("average Power:%d\n", avgPower(X));
-
+% fprintf("average Power:%d\n", avgPower(X));
+% ===============================================================
 end
+
+
 
 % ====================== HELPER FUNCTIONS ===============================
 
@@ -60,40 +41,36 @@ x = 1:N;
 div = x(~(rem(N, x)));
 end
 
-% returns size of 
-function [best_width, best_heigth] = getOptimalConstellationSize(M)
-
-% Find possible factors of the total size
-factors = divisors(M);
-
-% Initialize variables
-min_difference = Inf;
-best_width = 1;
-best_heigth = M;
-
-% Iterate through factors to find the closest to a square
-for i = 1:length(factors)
-    current_width = factors(i);
-    current_heigth = M / current_width;
-    
-    % Check if the current dimensions are closer to a square
-    current_difference = abs(current_width - current_heigth);
-    if current_difference <= min_difference
-        best_width = current_width;
-        best_heigth = current_heigth;
-        min_difference = current_difference;
-    end
-end
+% get string grey labels for constellation
+function labels = getStringBitLabels(label)
+labels = cell(1, size(label, 1));
+for i=1:size(label, 1)
+    code = label(i, :);
+    labels{i} = mat2str(code);
 end
 
-function plotComplex(complexVector)
+end
+
+% help plotter function
+function plotComplex(complexVector, labels, displayLabels)
     % Check if the input is a vector
     if ~isvector(complexVector)
         error('Input must be a vector of complex values.');
     end
 
+    re = real(complexVector);
+    im = imag(complexVector);
+
     % Create a scatter plot
-    scatter(real(complexVector), imag(complexVector), 'o');
+    scatter(re, im, 'o');
+
+    % Add custom string labels to each point
+    if(displayLabels)
+        for i = 1:length(complexVector)
+            text(re(i), im(i), labels{i});
+            % 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
+        end
+    end
 
     % Add grid and labels
     grid on;
@@ -112,3 +89,92 @@ function plotComplex(complexVector)
     axis equal;
 end
 
+% does most of the work and
+% returns a VECTOR of complex values that represents the constellation
+function X = computeSymbolPositions(M)
+
+% get correct sizes and shape of the constellation
+longSide = ceil(sqrt(M));
+square = longSide*longSide;
+cutoutSquare = ((square-M)/4);
+
+% while diff/4 (corner) not perfect square look for a better diff
+while (~isPerfectSquare(cutoutSquare))
+    longSide = longSide + 1;
+    square = longSide*longSide;
+    cutoutSquare = ((square-M)/4);
+end
+
+cutoutSide = sqrt(cutoutSquare);
+side = longSide - 2*cutoutSide;
+
+disp(side);
+disp(longSide);
+disp(cutoutSide);
+% longSide is size of the square that embraces the QAM constellation
+
+% preallocate X
+X = [];
+
+% get the optimal d (d_min) "distance between neighbours" for E_avg = 1
+d = getDistance(M, 1);
+
+spacing = linspace(0, (longSide-1)*d, longSide);
+
+[re, im] = meshgrid(spacing, spacing);
+% add real and imaginary part to the matrix
+complex_matrix = re - im*1i;
+
+% shift the matrix to the correct position
+complex_matrix = complex_matrix + (-(longSide-1)*d/2 + (longSide-1)*d*1i/2);
+
+% dont remove corners if constellation is a perfect square
+if cutoutSide == 0 
+    X = reshape(complex_matrix', M, 1)';
+    return;
+end
+
+% otherwise cut out the corners
+for i=1:longSide
+    for j=1:longSide
+        corner1 = (i<=cutoutSide && j<=cutoutSide);
+        corner2 = (i<=cutoutSide && j>cutoutSide+side);
+        corner3 = (i>cutoutSide+side && j<=cutoutSide);
+        corner4 = (i>cutoutSide+side && j>cutoutSide+side);
+
+        if ~(corner1 || corner2 || corner3 || corner4)
+            fprintf("Current Position: [%d %d]\n", i, j);
+            X = [X complex_matrix(i,j)];
+        end
+    end
+end
+
+end
+
+% get optimal distace provided M and the Enegry pro bit symbol
+function d = getDistance(M, E_s)
+d = sqrt(6*E_s / (M-1));
+end
+
+% Check if the square of the square root is equal to the original number
+function perfectSquare = isPerfectSquare(number)
+    perfectSquare = (sqrt(number) == round(sqrt(number))) && (number >= 0);
+end
+
+% takes the gray codes and rearranges for a 2D case
+function grayCode2D = arrangeGrayCodes2D(gray_codes)
+grayCode2D = zeros(size(gray_codes));
+M = size(gray_codes, 1);
+side = sqrt(M);
+
+alternate = false;
+
+for i=1:side:M
+    alternate = ~alternate;
+    if(alternate)
+        grayCode2D(i:i+side-1, :) = gray_codes(i:i+side-1, :);
+    else
+        grayCode2D(i:i+side-1, :) =  flipud(gray_codes(i:i+side-1, :));
+    end
+end
+end

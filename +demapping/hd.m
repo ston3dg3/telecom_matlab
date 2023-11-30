@@ -28,7 +28,7 @@ for i=1:M
     seq_out(i, :) = codeword;
 end
 
-% convert output to uint8 vector (from matrix form)
+% convert output to uint8 row vector (from matrix form)
 seq_out = uint8(reshape(seq_out', M*m, 1)');
 
 end
