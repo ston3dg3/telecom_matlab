@@ -3,11 +3,9 @@ function [seq_out] = sd(seq_in,X,label,N0)
 % instead of hard-decisions. We compute this reliability information in form of log-
 % likelihood ratios. Outputs the log-likelihood ratios of all bits.
 
-% define useful variables
+seq_out = zeros(1,length(seq_in)*size(label,2));
 m = size(label, 2);
-seq_out = zeros(1,length(seq_in)*m);
-LLR = zeros(1, length(seq_in)*m);
-veryReal = isreal(X);
+LLR = zeros(m*length(seq_in));
 
 for i=1:length(seq_in)
     % get detected symbol
@@ -31,19 +29,20 @@ for i=1:length(seq_in)
         distances1 = norm(symbol - symbols1);
 
         % Calculate the log likelihood ratio for bit level j
-        LLR((i-1)*m +j) = log(sum(P_N(distances1, N0, veryReal)) / sum(P_N(distances0, N0, veryReal)));  
+        LLR((i-1)*m +j) = sum(P_N(distances1)) / sum(P_N(distances0));  
     end
+
+
+    % add log likelihood to seq_out
+    seq_out(i, :) = L_i;
 end
-% assign LLR to output
-seq_out(:) = LLR;
 end
 
 % ============================== helper functions ======================
 
-% is this function correct? 
 % equivalent to P_X|Y(x|y)
-function P_YthatXis0 = P_N(dist, N0, realNoise)
-if(realNoise)
+function P_YthatXis0 = P_N(dist, N0)
+if(isreal(X))
     sigma = N0/2;
 else
     sigma = N0;

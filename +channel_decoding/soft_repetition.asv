@@ -7,19 +7,19 @@ function [seq_out] = soft_repetition(seq_in,n,k)
 seq_out = uint8(zeros(1,k));
 
 if mod(n, k)~=0 || k>n
-    warning("illegal values passed to soft_repetition() function")
+    warning("illegal values passed to repetition() function")
 end
 
-% number of repetitions
+% numer of repetitions
 n_r = n/k;
 
 % help matrix
 seq_matrix = reshape(seq_in', k, n_r)';
+disp(seq_matrix);
 
 % hard decision based of number of bits
-for j=1:k
+for j=1:n_r
     sum_L = sum(seq_matrix(:,j));
-    
     if(sum_L) >= 0
         seq_out(j) = uint8(0);
     else

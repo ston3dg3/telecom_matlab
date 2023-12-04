@@ -13,7 +13,13 @@ if mod(n, k)~=0 || k>n
 end
 
 n_r = n/k;
-seq_out = repmat(seq_in, 1, n_r);
+seq_out = uint8(repmat(seq_in, 1, n_r));
+
+fprintf("=====================\")
+disp(n);
+disp(k);
+disp(n_r);
+fprintf("=====================")
 
 end
 

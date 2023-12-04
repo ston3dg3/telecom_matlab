@@ -49,11 +49,11 @@ modulated_seq = modulation.map_to_constellation(repeated_seq,myX,myLabel);
 fprintf("seq_out: %s\n", mat2str(modulated_seq));
 
 % add noise:
-fprintf("nosiy seq: %s\n", mat2str(channel.awgn(modulated_seq, channel.get_N0('snr', 15, 8, myX, 1)),2))
+fprintf("nosiy seq: %s\n", mat2str(channel.awgn(modulated_seq, channel.get_N0('snr', 15, 8, myX, 1))))
 harddemapped_seq = demapping.hd(modulated_seq, myX, myLabel);
 softdemapped_seq = demapping.sd(modulated_seq, myX, myLabel, N0);
-fprintf("hard demapped seq: %s\n", mat2str(harddemapped_seq, 2));
-fprintf("soft demapped seq: %s\n", mat2str(softdemapped_seq, 2));
+fprintf("hard demapped seq: %s\n", mat2str(harddemapped_seq));
+fprintf("soft demapped seq: %s\n", mat2str(softdemapped_seq));
 i = 1;
 j = 1;
 harddecoded_seq = zeros(1, length(mySeq));
@@ -64,9 +64,15 @@ while(i<length(harddemapped_seq) && j < length(harddemapped_seq))
     i = i + m;
     j = j + repSpace;
 end
-fprintf("coparison mySeq: %s\n", mat2str(mySeq));
+fprintf()
 fprintf("harddecoded seq: %s\n", mat2str(harddecoded_seq));
 fprintf("softdecoded seq: %s\n", mat2str(softdecoded_seq));
+
+codd = harddecoded_seq(1:length(mySeq));
+codd2 = harddecoded_seq(length(mySeq):end);
+disp([mySeq ; codd]);
+disp(codd2);
+
 fprintf("===============================================\n");
 
 % =============================================================

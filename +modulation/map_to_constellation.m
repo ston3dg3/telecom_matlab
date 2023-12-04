@@ -20,9 +20,9 @@ n = length(seq_in);
 m = size(label, 2);
 % num_of_symbols is number of symbols in the sequence
 num_of_symbols = n/m; 
+
 % preallocate seq_out
 seq_out = zeros(1, num_of_symbols);
-
 
 column_sequence = reshape(seq_in, m, num_of_symbols)';
 

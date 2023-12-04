@@ -6,7 +6,7 @@ function [seq_out] = hard_repetition(seq_in,n,k)
 seq_out = uint8(zeros(1,k));
 
 if mod(n, k)~=0 || k>n
-    warning("illegal values passed to repetition() function")
+    warning("illegal values passed to hard_repetition() function")
 end
 
 % numer of repetitions
@@ -16,7 +16,7 @@ n_r = n/k;
 seq_matrix = reshape(seq_in', k, n_r)';
 
 % hard decision based of number of bits
-for j=1:n_r
+for j=1:k
     sum_ones = sum(seq_matrix(:,j));
     if(sum_ones) >= n_r/2
         seq_out(j) = uint8(1);
@@ -25,5 +25,7 @@ for j=1:n_r
     end
 end
 
+
 end
+
 
