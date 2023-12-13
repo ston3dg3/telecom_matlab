@@ -41,24 +41,27 @@
 
 % =======================================================================
 topic("testing rcc pulse");
-myX = [1 0 1 1];
-nos = 2;
+% myX = [1 0 1 1 1 0 1 1 0 1];
+% myX = [1 0 1 1];
+% myX = [1 -1 -1i 1 1i -1 -1 1];
+myX = [1 -3 7 -2 -1 4 -6 2 -1 1 1 -2 3 3 -7]; 
+nos = 4;
 filterspan = 2;
 rolloff = 0;
 % -------------
 pulsee = pulses.rrc(filterspan, rolloff, nos, 'time');
+%pulsee = pulses.rect(nos);
 rccmf = matched_filter.get_mf(pulsee);
 [r, time] = pulse_shaping.conv_pulse(myX, pulsee, nos, 1);
 [yos, time2] = matched_filter.filtering(r, rccmf, nos, 1);
 [yy, tt] = matched_filter.sampling(yos, time2, nos, filterspan, filterspan);
 % -------------
 figure
-subplot(2,2,1);
+hold on
 plot(time, r);
-subplot(2,2,2);
 plot(time2, yos);
-subplot(2,2,3);
-plot(tt,yy);
+scatter(tt,yy);
+hold off
 %stem(shaped_message);
 line();
 % =======================================================================

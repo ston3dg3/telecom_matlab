@@ -16,7 +16,7 @@ t = zeros(size(s));
 % NEW, GENERAL IMPLEMENTATION
 j=1;
 for i=1:n_os:length(s)
-    if(j>length(pulse))
+    if(j>length(x))
         fprintf("TOO FAR!\n");
         break;
     end
