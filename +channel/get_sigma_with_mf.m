@@ -4,11 +4,15 @@ function [sigma] = get_sigma_with_mf(snr_type, snr_dB, M, X, coderate, mf_pulse)
 % define variables
 sigma = 0;
 R = coderate;
+perSymbol = (log2(M)*R);
 
-% get expectancy / mean power pro signal
-E_s = mean(norm(X));
-% get expectancy / mean power pro bit
-E_b = mean(norm(X)) / (log2(M) * R);
+% we somehow need to calculate E_s from X and mf_pulse.
+
+% get average power pro symbol
+E_s = mean(max(mf_pulse) * norm(X));
+
+% get average power pro bit
+E_b = E_s / perSymbol;
 
 % calculate sigma based on SNR definition type
 switch snr_type

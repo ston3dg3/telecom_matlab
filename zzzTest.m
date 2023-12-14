@@ -44,7 +44,8 @@ topic("testing rcc pulse");
 % myX = [1 0 1 1 1 0 1 1 0 1];
 % myX = [1 0 1 1];
 % myX = [1 -1 -1i 1 1i -1 -1 1];
-myX = [1 -3 7 -2 -1 4 -6 2 -1 1 1 -2 3 3 -7]; 
+myX = [1 -3 7 -5 -1 3 -7 3 -1 1 1 -5 3 3 -7]; 
+const = [-7 -5 -3 -1 1 3 5 7];
 nos = 4;
 filterspan = 2;
 rolloff = 0;
@@ -55,6 +56,8 @@ rccmf = matched_filter.get_mf(pulsee);
 [r, time] = pulse_shaping.conv_pulse(myX, pulsee, nos, 1);
 [yos, time2] = matched_filter.filtering(r, rccmf, nos, 1);
 [yy, tt] = matched_filter.sampling(yos, time2, nos, filterspan, filterspan);
+sigma = channel.get_sigma_with_mf('ebn0', 20, length(const), const, 1, pulsee);
+results("standard deviation (sigma) of the noise based on mf_pulse", sigma);
 % -------------
 figure
 hold on
