@@ -42,16 +42,19 @@
 % =======================================================================
 topic("testing rcc pulse");
 % myX = [1 0 1 1 1 0 1 1 0 1];
-% myX = [1 0 1 1];
+myX = [1 0 1 1];
 % myX = [1 -1 -1i 1 1i -1 -1 1];
-myX = [1 -3 7 -5 -1 3 -7 3 -1 1 1 -5 3 3 -7]; 
-const = [-7 -5 -3 -1 1 3 5 7];
-nos = 4;
-filterspan = 2;
+% myX = [1 -3 7 -5 -1 3 -7 3 -1 1 1 -5 3 3 -7]; 
+% const = [-7 -5 -3 -1 1 3 5 7];
+const = [0 1];
+nos = 2;
+filterspan = 100;
 rolloff = 0;
 % -------------
-pulsee = pulses.rrc(filterspan, rolloff, nos, 'time');
-%pulsee = pulses.rect(nos);
+% pulsee = pulses.rrc(filterspan, rolloff, nos, 'time');
+% pulsee = pulses.rect(nos);
+pulsee = pulses.rc(filterspan, rolloff, nos, 'time');
+figure
 rccmf = matched_filter.get_mf(pulsee);
 [r, time] = pulse_shaping.conv_pulse(myX, pulsee, nos, 1);
 [yos, time2] = matched_filter.filtering(r, rccmf, nos, 1);
@@ -61,20 +64,18 @@ results("standard deviation (sigma) of the noise based on mf_pulse", sigma);
 % -------------
 figure
 hold on
-plot(time, r);
-plot(time2, yos);
-scatter(tt,yy);
+stem(time, r);
+% stem(time2-filterspan/nos, yos);
+stem(tt-filterspan/nos, yy);
+
+% plot(time, r);
+% plot(time2, yos);
+% scatter(tt,yy);
 hold off
-%stem(shaped_message);
+% samples = 0:length(r)-1;
+% stem(samples,r);
 line();
 % =======================================================================
-% =======================================================================
-% =======================================================================
-% =======================================================================
-% =======================================================================
-% =======================================================================
-
-
 % ================================= HELPER FUNCTIONS ====================
 
 function results(result, matrix)

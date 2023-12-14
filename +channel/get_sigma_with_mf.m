@@ -9,7 +9,12 @@ perSymbol = (log2(M)*R);
 % we somehow need to calculate E_s from X and mf_pulse.
 
 % get average power pro symbol
-E_s = mean(max(mf_pulse) * norm(X));
+%E_s = mean(norm(mf_pulse) * norm(X));
+
+E_s = mean(norm(X)^2) * mf_pulse*mf_pulse';
+
+%(norm(X)).^2 * sum(^2);
+
 
 % get average power pro bit
 E_b = E_s / perSymbol;

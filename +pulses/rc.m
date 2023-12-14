@@ -24,7 +24,6 @@ function pulse = rc(filterspan, rolloff, n_os, design_type)
         ovsampled_pulse = freq_rc(u_strich,N,n_os,rolloff);     %in frequency domain
         %ovsampled_pulse = fftshift(ovsampled_pulse);
         pulse = fftshift(ifft(fftshift(ovsampled_pulse))) ;        %in time domain
-        stem(pulse);
 
     elseif design_type == 'time'
         % Design truncated RC pulse in time domain
@@ -32,10 +31,8 @@ function pulse = rc(filterspan, rolloff, n_os, design_type)
         t = -n_span/2*T:T/n_os:n_span/2*T;
         fprintf("time vector: ")
 
-        
-        pulse = time_rc(t,T,n_span,rolloff);
+        pulse = time_rc(t,T,rolloff);
         t=t+n_span*T/2;
-        stem(t,pulse);
     else    
         pulse = [];     %if no label for time or freq shaping is given, return empty array
     end
@@ -60,11 +57,17 @@ function value = freq_rc(u_strich,N,n_os,rolloff)
 end
 
 % RC in time domain
-function value = time_rc(t,T,n_span,rolloff)
+function value = time_rc(t,T,rolloff)
     value = [];
     
     for i=1:length(t)
+       if t(i)==0
+           value(i) = 1;
+       else
         %value(i) = sinc( (t(i)-(n_span/2)*T)/T)*cos( ( rolloff*pi*(t(i)-(n_span/2)*T))/( (1-4*(rolloff^2)*((t(i)-(n_span/2)*T)^2) )/T^2)  );
-         value(i) = sin( (t(i)/T) / (t(i)/T) ) * cos( ( rolloff*pi*(t(i)))/( (1-4*(rolloff^2)*((t(i))^2) )/T^2)  );
+         value(i) = sin( (t(i)/T) ) / (t(i)/T)  * cos( ( rolloff*pi*(t(i)))/( (1-4*(rolloff^2)*((t(i))^2) )/T^2)  );
+       end
     end
+    disp(t);
+    disp(value);
 end

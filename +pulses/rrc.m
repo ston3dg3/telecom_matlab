@@ -39,7 +39,8 @@ function pulse = rrc(filterspan, rolloff, n_os, design_type)
         pulse(end) = [];
 
         % printing
-        stem(t,pulse);
+        %stem(t,pulse);
+
 
     else    
         pulse = [];     %if no label for time or freq shaping is given, return empty array

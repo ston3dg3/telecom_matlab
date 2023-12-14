@@ -7,16 +7,19 @@ function [y_os,t] = filtering(r, mf_pulse, n_os, symbol_rate)
     % the filtered signal is a convolution of the receive signal and the
     % receiver matched filter.
     y_os = conv(r, mf_pulse);
+    % y_os = newconv(r, mf_pulse, y_os, n_os);
 
 
-    y_os = circshift(y_os, -n_os);
+    % y_os = circshift(y_os, -n_os);
 
     % time period between pulses in seconds
     T = 1/symbol_rate;
     % time period between oversampled pulses in seconds
     T_os = T/n_os;
 
+    % =======================================
+    % change time vectors
     t = linspace(0,T_os*length(y_os), length(y_os));
 
-    % Funktioniert
+    % Funktioniert (?)
 end

@@ -29,7 +29,7 @@ T = 1/symbol_rate;
 % time period between oversampled pulses in seconds
 T_os = T/n_os;
 % vector representing the times axis
-t = linspace(0,T_os*length(s), length(s));
+t(:) = linspace(0,T_os*length(s), length(s));
 
 
 % Funktioniert
