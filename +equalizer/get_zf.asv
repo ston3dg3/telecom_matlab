@@ -1,0 +1,16 @@
+function [w] = get_zf(system_impulse_response,K)
+%GET_ZF Summary of this function goes here
+%  outputs the filter coefficients of the zero-forcing equalizer with length 2K + 1.
+%  system_impulse_response denotes the sampled system impulse response.
+
+w = zeros(1,2*K+1);
+L = (length(system_impulse_response)-1)/2;
+
+% get the channel matrix
+H = zeros(2*K+1, 2*(K+L)+1);
+
+for i=1:size(H,1)
+    H(i, )
+end
+
+end

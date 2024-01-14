@@ -26,7 +26,7 @@ h1 = conv(g, h_LP);
 h = conv(h1, h_r);
 
 % =========== Determine the length of the discrete pulse
-L = floor(filterspan_pulse / (2 * n_os));
+L = floor(length(h) / (2 * n_os));
 
 % =========== Sample the system impulse response
 discrete_pulse = h(1:n_os:end);
@@ -37,10 +37,14 @@ if length(discrete_pulse) < 2*L + 1
 end
 
 % =========== calcuate new noise and its sigma
-N = sigma2_ch*sigma2_ch * randn(1, length(h)+length(h_r)-1);
+N = sqrt(sigma2_ch * randn(1, L);
 N_ = conv(N, h_r);
-sigma2_rx = std(N_);
+sigma2_rx = var(N_);
 
+
+disp(h);
+
+discrete_pulse = 0;
 
 
 end
