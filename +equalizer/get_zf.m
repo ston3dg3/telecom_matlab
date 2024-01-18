@@ -6,7 +6,7 @@ function [w] = get_zf(system_impulse_response,K)
 % initialise important variables
 w = zeros(1,2*K+1);
 len = length(system_impulse_response);
-L = (len-1)/2;
+L = (len)/2;
 
 % get the channel matrix (H)
 H = zeros(2*K+1, 2*(K+L)+1);

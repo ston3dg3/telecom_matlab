@@ -23,7 +23,7 @@ end
 impulse_response(:) = fftshift(ifft(fftshift(filter)));
 
 % ========== plotting ===========
-plot(frequencies, filter);
+% plot(frequencies, filter);
 % stem(filter);
 % get time for plotting
 % time = 0:length(impulse_response)-1;
