@@ -5,7 +5,7 @@ assert(param.source_coding.is_initialized == 1)
 
 switch param.source_coding.type
     case 'none'
-        output = source_encoding.none(param.source_coding.huffman_structure, input);
+        output = source_encoding.none(param, input);
     case 'huffman'
         output = source_encoding.huffman(param.source_coding.huffman_structure, input);
 	case 'huffman_img'
